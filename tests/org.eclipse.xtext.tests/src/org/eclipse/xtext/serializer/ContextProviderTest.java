@@ -49,7 +49,7 @@ public class ContextProviderTest extends AbstractXtextTests {
 		List<Pair<String, List<String>>> result = Lists.newArrayList();
 		for (EObject context : contextProvider.getAllContexts(grammar)) {
 			List<String> types = Lists.newArrayList();
-			for (EClass type : contextProvider.getTypesForContext(context))
+			for (EClass type : contextProvider.getTypesForContext(grammar, context))
 				types.add(type == null ? "null" : type.getName());
 			Collections.sort(types);
 			result.add(Tuples.create(names.getContextName(grammar, context), types));

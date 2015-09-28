@@ -74,7 +74,7 @@ public class SyntacticSequencerPDAProviderTest extends AbstractXtextTests {
 			IContextProvider contexts = get(IContextProvider.class);
 			SyntacticSequencerPDA2ExtendedDot seq2dot = get(SyntacticSequencerPDA2ExtendedDot.class);
 			for (EObject ctx : contexts.getAllContexts(grammar))
-				for (EClass type : contexts.getTypesForContext(ctx))
+				for (EClass type : contexts.getTypesForContext(grammar, ctx))
 					seq2dot.draw(
 							new Pair<EObject, EClass>(ctx, type),
 							path + "-" + new Context2NameFunction().toFunction(grammar).apply(ctx) + "_"
@@ -89,7 +89,7 @@ public class SyntacticSequencerPDAProviderTest extends AbstractXtextTests {
 		final IContextProvider contextProvider = get(IContextProvider.class);
 		List<Triple<EClass, EObject, String>> result = Lists.newArrayList();
 		for (EObject ctx : contextProvider.getAllContexts(grammar))
-			for (EClass type : contextProvider.getTypesForContext(ctx))
+			for (EClass type : contextProvider.getTypesForContext(grammar, ctx))
 				result.add(Tuples.create(type, ctx, ctx2name.getContextName(grammar, ctx)));
 		Collections.sort(result, new Comparator<Triple<EClass, EObject, String>>() {
 			@Override
@@ -697,7 +697,11 @@ public class SyntacticSequencerPDAProviderTest extends AbstractXtextTests {
 		expected.append("  start '}'* greetings2+=Greeting2\n");
 		expected.append("  start '}'+ stop\n");
 		expected.append("null_AllElements:\n");
-		expected.append("  start stop");
+		expected.append("  start stop\n");
+		expected.append("null_Elements:\n");
+		expected.append("  start >>Model '}'+ <<Model stop\n");
+		expected.append("null_Model:\n");
+		expected.append("  start '}'+ stop");
 		assertEquals(expected.toString(), actual);
 	}
 

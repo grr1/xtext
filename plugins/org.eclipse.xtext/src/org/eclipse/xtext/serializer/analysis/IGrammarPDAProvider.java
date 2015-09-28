@@ -7,22 +7,22 @@
  *******************************************************************************/
 package org.eclipse.xtext.serializer.analysis;
 
-import java.util.List;
+import java.util.Set;
 
-import org.eclipse.xtext.AbstractElement;
+import org.eclipse.xtext.Grammar;
+import org.eclipse.xtext.ParserRule;
+import org.eclipse.xtext.RuleCall;
+import org.eclipse.xtext.util.formallang.Pda;
 
-public interface ISerState {
-	public enum SerStateType {
-		ELEMENT, POP, PUSH, START, STOP;
-	}
+import com.google.inject.ImplementedBy;
 
-	//	ISerState getOpposite();
+/**
+ * @author Moritz Eysholdt - Initial contribution and API
+ */
+@ImplementedBy(GrammarPDAProvider.class)
+public interface IGrammarPDAProvider {
 
-	List<? extends ISerState> getFollowers();
+	Pda<ISerState, RuleCall> getGrammarPDA(Grammar grammar, ParserRule entryRule);
 
-	List<? extends ISerState> getPrecedents();
-
-	AbstractElement getGrammarElement();
-
-	SerStateType getType();
+	Set<ParserRule> getAllRules(Grammar grammar);
 }
