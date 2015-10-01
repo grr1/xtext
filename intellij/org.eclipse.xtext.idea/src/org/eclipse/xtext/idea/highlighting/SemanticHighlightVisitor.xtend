@@ -13,16 +13,17 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.daemon.impl.HighlightVisitor
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import org.eclipse.xtext.Constants
 import org.eclipse.xtext.ide.editor.syntaxcoloring.IHighlightedPositionAcceptor
 import org.eclipse.xtext.ide.editor.syntaxcoloring.ISemanticHighlightingCalculator
+import org.eclipse.xtext.psi.XtextPsiUtils
 import org.eclipse.xtext.psi.impl.BaseXtextFile
 import org.eclipse.xtext.service.OperationCanceledError
 import org.eclipse.xtext.service.OperationCanceledManager
 import org.eclipse.xtext.util.CancelIndicator
-import org.eclipse.xtext.psi.XtextPsiUtils
 
 /**
  * @author Jan Koehnlein - Initial contribution and API
@@ -43,23 +44,24 @@ abstract class SemanticHighlightVisitor implements HighlightVisitor {
 		val virtualFile = XtextPsiUtils.findVirtualFile(file);
 		if(!FileEditorManager.getInstance(file.project).isFileOpen(virtualFile)) 
 			return true
-		acceptor = [
-			offset, length, styles |
-			styles.forEach [
-				if(length > 0) {
-					val info = HighlightInfo
-						.newHighlightInfo(highlightInfoType)
-						.range(offset, offset + length)
-						.description(it)
-						.create
-					holder.add(info)			
+	    try {
+			acceptor = [
+				offset, length, styles |
+				ProgressManager.checkCanceled
+				if (length > 0) {
+					styles.forEach [
+						val info = HighlightInfo
+							.newHighlightInfo(highlightInfoType)
+							.range(offset, offset + length)
+							.description(it)
+							.create
+						holder.add(info)		
+					]
 				}
 			]
-		]
-	    try {
-	      action.run
-	    }
-	    finally {
+		    ProgressManager.checkCanceled
+	    	action.run
+	    } finally {
 	      acceptor = null
 	    }
 		return true
